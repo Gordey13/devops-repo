@@ -1,0 +1,17 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: minio
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  description: Minio cluster installation
+  sourceRepos:
+  - 'https://github.com/Gordey13/devops-repo'
+  destinations:
+  - server: https://kubernetes.default.svc
+    namespace: 'minio'
+  clusterResourceWhitelist:
+    - group: '*'
+      kind: '*'
