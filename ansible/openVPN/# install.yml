@@ -1,0 +1,22 @@
+# install
+- name: "Add PPA {{ nginx_ppa_source }}/{{ nginx_ppa_version }} for Nginx."
+apt_repository:
+repo: 'ppa:{{ nginx_ppa_source }}/{{ nginx_ppa_version }}'
+state: present
+update_cache: yes
+register: nginx_ppa_added
+when: nginx_ppa_use
+-name: Ensure nginx will reinstall if the PPA was just added.
+apt:
+name: "{{ nginx_package_name }}"
+state: absent
+when: nginx_ppa_added.changed
+- name: Update apt cache.
+apt:
+update cache: yes
+cache_valid_time: 86400
+changed when: false
+- name: Ensure nginx is installed.
+apt:
+name: "{{ nginx_package_name }}"
+ state: present 

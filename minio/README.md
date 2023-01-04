@@ -1,6 +1,8 @@
 # Основано на Bitnami MinIO
 https://github.com/bitnami/charts/tree/master/bitnami/minio/
 
+![](images/volumeHostPath.jpg)
+
 В качестве хранилища будет использоваться диски сервера. Поэтому необходимо жестко привязать
 поды minio к соответствующим нодам кластера. Пометим две worker node при помощи label
 `kubectl label nodes worker1.cluster.local minio=yes`

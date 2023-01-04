@@ -1,0 +1,14 @@
+[member]
+ETCD_NAME=datanode1 # hostname машины
+ETCD_DATA_DIR="/var/lib/etcd/default.etcd"
+
+ALL IP ADRESSES SHOULD BE VALID. LISTER PEER, CLIENT etc SHOULD BE SET TO IP ADDRESS OF HOST
+ETCD_LISTEN_PEER_URLS="http://192.168.0.143:2380" # адрес машины
+ETCD_LISTEN_CLIENT_URLS="http://192.168.0.143:2379,http://127.0.0.1:2379" # адрес машины
+
+[cluster]
+ETCD_INITIAL_ADVERTISE_PEER_URLS="http://192.168.0.143:2380" # адрес машины
+ETCD_INITIAL_CLUSTER="datanode1=http://192.168.0.143:2380,datanode2=http://192.168.0.144:2380,datanode3=http://192.168.0.145:2380" # адреса всех машин в кластере etcd
+ETCD_INITIAL_CLUSTER_STATE="new"
+ETCD_INITIAL_CLUSTER_TOKEN="etcd-cluster-1"
+ETCD_ADVERTISE_CLIENT_URLS="http://192.168.0.143:2379" # адрес машины

@@ -1,0 +1,140 @@
+---
+# tasks for server-side
+- name: OpenVPN | Install packages
+	ansible.builtin.apt:
+	name: 
+		- openvpn
+		- easy-rsa
+		- iptables-persistent
+	update_cache: yes
+	state: present
+notify:
+- enable openvpn
+
+- name: OpenVPN | Enable IPv4 forwarding
+ansible. posix.sysctl:
+	name: net.ipv4.ip_forward
+	value: '1'
+	sysctl_set: yes
+	state: present
+	reload: yes
+	ignoreerrors: true
+failed_when: false
+
+- name: OpenVPN | Create IPTables NAT Chain
+	ansible.builtin.iptables:
+		table: nat
+		chain:POSTROUTING
+		jump: MASQUERADE
+		protocol: all
+		source: '0.0.0.0/0'
+		destination: '0.0.0.0/0'
+		comment: Ansible NAT Masquerade
+	become: true
+
+- name: OpenVPN | Create directory
+	ansible.builtin.file:
+		path: "{{ openvpn_dir }}/easy-rsa"
+		state: directory
+		mode: '0755'
+
+- name: OpenVPN | Create symbolic link
+  ansible.builtin.file:
+    src: /usr/share/easy-rsa/*
+    dest: "{{ openvpn_dir }}/easy-rsa/"
+    owner: gordey
+    group: gordey
+    state: link
+
+- name: OpenVPN | Create file vars
+	ansible.builtin.copy:
+      dest: "{{ openvpn_dir }}/easy-rsa/vars"
+      content:
+        set_var EASYRSA_ALGO "ec"
+				set_var EASYRSA_DIGEST "sha512"
+
+- name: OpenVPN | easyrsa init-pki
+	ansible.builtin.command:
+			cmd: "{{ openvpn_dir }}/easy-rsa/easyrsa init-pki"
+			chdir: "{{ openvpn_dir }}/easy-rsa"
+			creates: "{{ openvpn_dir }}/easy-rsa/pki"
+
+- name: OpenVPN | easyrsa gen-dh
+	ansible.builtin.command:
+			cmd: "{{ openvpn_dir }}/easy-rsa/easyrsa gen-dh nopass"
+			chdir: "{{ openvpn_dir }}/easy-rsa"
+			creates: "{{ openvpn_dir }}/easy-rsa/pki/dh.pem"
+
+- name: OpenVPN | easyrsa build-ca
+	ansible.builtin.command:
+			cmd: "{{ openvpn_dir }}/easy-rsa/easyrsa build-ca nopass"
+			chdir: "{{ openvpn_dir }}/easy-rsa"
+			creates: "{{ openvpn_dir }}/easy-rsa/ca.crt"
+		environment:
+			EASY RSA_BATCH: "yes"
+
+- name: OpenVPN | easyrsa server nopass
+	ansible.builtin.command:
+			cmd: "{{ openvpn_dir }}/easy-rsa/easyrsa build-server-full server nopass"
+			chdir: "{{ openvpn_dir }}/easy-rsa"
+			creates: "{{ openvpn_dir }}/easy-rsa/pki/issued/server.crt"
+
+- name: OpenVPN | easyrsa client nopass
+	ansible.builtin.command:
+		cmd: "{{ openvpn_dir }}/easy-rsa/easyrsa build-client-full {{ item }} nopass"
+		chdir: "{{ openvpn_dir }}/easy-rsa"
+		creates: "{{ openvpn_dir }}/easy-rsa/pki/issued/{{ item }}.crt"
+	with_items:
+		- "{{ openvpn_clients }}"
+
+- name: OpenVPN | easyrsa gen-crl
+	ansible.builtin.command:
+			cmd: "{{ openvpn_dir }}/easy-rsa/easyrsa gen-crl"
+			chdir: "{{ openvpn_dir }}/easy-rsa"
+			creates: "{{ openvpn_dir }}/easy-rsa/pki/crl.pem"
+
+- name: OpenVPN | openvpn genkey
+	ansible.builtin.command:
+			cmd: "{{ openvpn_dir }}/easy-rsa/easyrsa gen-crl"
+			creates: "{{ openvpn_dir }}/easy-rsa/pki/crl.pem"
+
+- name: OpenVPN | openvpn genkey
+	ansible.builtin.command:
+		cmd: "openvpn --genkey --secret {{ openvpn_dir }}/easy-rsa/pki/ta.key"
+		creates: "{{ openvpn_dir }}/easy-rsa/pki/ta.key"
+
+- name: "OpenVPN | copy files to {{ openvpn_dir }}/server"
+	ansible.builtin.copy:
+    src: "{{ openvpn_dir }}/easy-rsa/pki/{{ item }}"
+    dest: "{{ openvpn_dir }}/server/{{ item | basename }}"
+		mode: "0644"
+	loop:
+		- ca.crt
+		- dh.pem
+		- ta.key
+		- private/ca.key
+		- private/server.key
+		- issued/server.crt
+
+- name: "OpenVPN | copy files to {{ openvpn_dir }}"
+	ansible.builtin.copy:
+    src: "{{ openvpn_dir }}/easy-rsa/pki/{{ item }}"
+    dest: "{{ openvpn_dir }}/{{ item | basename }}"
+		mode: "0644"
+		remote_src: true
+	loop:
+		- ca.crt
+		- ta.key
+
+- name: OpenVPN | place server.conf
+	ansible.builtin.template:
+		src: server.conf.j2
+		dest: "{{ openvpn_dir }}/server.conf"
+		owner: root
+		group: root
+		mode: "0644"
+	notify:
+		- restart openvpn
+
+
+

@@ -113,9 +113,6 @@ spec:
   - Проверяем наличие запроса: `kubectl get csr`
   - Подтверждаем сертификат `kubectl certificate approve nexus_csrv2` /deny
   - Помещаем сертификат Nexus. `kubectl get csr nexus_csrv2 -o jsonpath={.status.certificate} | base64 --decode > nexus.crt`
-
-
-
   - Добавляем сертификат в виде Секрета в систему `kubectl -n nexus create secret tls nexus-tls --cert=nexus.crt --key=nexus.key`
 19. Установить сертификат в Win машину. Сертификат Авторити
 - Выводим сертификат cat /etc/kubernetes/pki/ca.crt

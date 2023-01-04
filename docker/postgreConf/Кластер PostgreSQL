@@ -1,0 +1,46 @@
+Построение кластера PostgreSQL высокой доступности с использованием Patroni, etcd, HAProxy
+https://habr.com/ru/post/482314/
+
+Стек используемых технологий:
+  - PostgreSQL в качестве СУБД
+  - Patroni в качестве решения для кластеризации
+  - etcd в качестве распределенного хранилища для Patroni
+  - HAproxy для предоставления единой точки входа.
+
+Организации и построения отказоустойчивого кластера PostgreSQL
+Требование: 
+  - Потоковая репликация с Master-сервера на все реплики
+  - Автоматический ввод резерва при отказе Master-сервера
+  - HAproxy для организации единой точки входа для приложений, использующих базу
+
+Установка etcd
+- etcd очень важна нагрузка на диски
+#!/bin/bash
+apt-get update
+apt-get install etcd
+
+Добавьте содержимое в файл /etc/default/etcd
+  - systemctl restart etcd
+
+Установка PostgreSQL 9.6 + patroni
+- Установить три VM 
+- Запустить скрипт из-под root 
+./preinstall-packegs.sh
+
+В файл /etc/patroni.yml изменив ip-адреса и поместить следующее содержимое
+/etc/patroni.yml
+
+Скрипт необходимо запустить на всех трех VM кластера
+Записать конфигурационый файл /etc/patroni.yml на всех машинах
+  - systemctl start patroni
+  - systemctl start postgresql
+
+Установка HAproxy
+HAproxy для предоставления единой точки входа.
+Master-сервер всегда будет доступен по адресу машины, на которой развернут HAproxy.
+Создаем директорию и создаем файлы — Dockerfile и haproxy.cfg
+HAproxy будет обращаться к Patroni, в HTTP-заголовках master-сервер всегда будет возвращать 200, а replica — 503
+
+docker build -t my-haproxy .
+docker run -d -p5000:5000 -p7000:7000 my-haproxy 
+patronictl - утилита с доступом к управлению кластером

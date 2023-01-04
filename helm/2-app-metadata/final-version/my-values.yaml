@@ -1,0 +1,4 @@
+fullnameOverride: "openresty"
+
+application:
+  reloader: true
