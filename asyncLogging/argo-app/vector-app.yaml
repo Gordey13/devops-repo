@@ -1,0 +1,26 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: vector
+  labels:
+    app: vector
+    env: test
+spec:
+  destination:
+    name: ''
+    namespace: logs
+    server: 'https://kubernetes.default.svc'
+  source:
+    path: asyncLogging/charts/vector
+    repoURL: 'https://github.com/Gordey13/devops-repo'
+    targetRevision: main
+    helm:
+      valueFiles:
+        - values-vector-opensearch.yaml
+  project: default
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

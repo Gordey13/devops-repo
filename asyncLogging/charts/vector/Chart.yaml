@@ -1,0 +1,10 @@
+apiVersion: v2
+name: vector-art
+description: Vector chart for ArgoCD
+type: application
+version: 0.1.0
+dependencies:
+- name: vector
+  condition: vector.enabled
+  repository: https://github.com/vectordotdev/helm-charts
+  version: 0.26.0

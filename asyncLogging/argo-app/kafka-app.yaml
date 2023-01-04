@@ -1,0 +1,26 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: kafka
+  labels:
+    app: kafka
+    env: test
+spec:
+  destination:
+    name: ''
+    namespace: kafka
+    server: 'https://kubernetes.default.svc'
+  source:
+    path: asyncLogging/charts/kafka
+    repoURL: 'https://github.com/Gordey13/devops-repo'
+    targetRevision: main
+    helm:
+      valueFiles:
+        - values-kafka.yaml
+  project: default
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

@@ -1,0 +1,26 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: elasticsearch
+  labels:
+    app: elasticsearch
+    env: test
+spec:
+  destination:
+    name: ''
+    namespace: elasticsearch
+    server: 'https://kubernetes.default.svc'
+  source:
+    path: asyncLogging/charts/elasticsearch
+    repoURL: 'https://github.com/Gordey13/devops-repo'
+    targetRevision: main
+    helm:
+      valueFiles:
+        - values-es.yaml
+  project: default
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

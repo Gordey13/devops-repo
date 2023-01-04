@@ -1,0 +1,26 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: kafdrop
+  labels:
+    app: kafka
+    env: test
+spec:
+  destination:
+    name: ''
+    namespace: kafka
+    server: 'https://kubernetes.default.svc'
+  source:
+    path: asyncLogging/charts/kafdrop
+    repoURL: 'https://github.com/Gordey13/devops-repo'
+    targetRevision: main
+    helm:
+      valueFiles:
+        - values-kafdrop.yaml
+  project: default
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

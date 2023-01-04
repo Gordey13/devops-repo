@@ -1,0 +1,26 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: fluentbit
+  labels:
+    app: fluentbit
+    env: test
+spec:
+  destination:
+    name: ''
+    namespace: logs
+    server: 'https://kubernetes.default.svc'
+  source:
+    path: asyncLogging/charts/fluent-bit
+    repoURL: 'https://github.com/Gordey13/devops-repo'
+    targetRevision: main
+    helm:
+      valueFiles:
+        - values-fb.yaml
+  project: default
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
