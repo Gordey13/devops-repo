@@ -1,0 +1,11 @@
+kubectl label nodes master1 ingress-nginx-node=enable
+kubectl label nodes master3 ingress-nginx-node=enable
+
+kubectl label nodes master3 master1 ingress-nginx-node-
+
+---
+spec:
+  nodeSelector:
+    ingress-nginx-node: enable
+# обязательно пометить ноды, на которых может быть
+# установлен контроллер
