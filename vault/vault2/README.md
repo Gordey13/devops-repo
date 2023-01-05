@@ -293,7 +293,3 @@ exit_after_auth - говорит, что после первой аутенти�
     </body>
     </html>
 ```
-
-## Видео
-
-[<img src="https://img.youtube.com/vi/bWZ_EmMQEyM/maxresdefault.jpg" width="50%">](https://youtu.be/bWZ_EmMQEyM)

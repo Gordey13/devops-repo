@@ -7,8 +7,6 @@
 * https://github.com/kubernetes-sigs/secrets-store-csi-driver/
 
 ## Установка
-
-
 ### Хранилище данных
 
 По умолчанию helm chart vault для хранения данных устанавливает Consul. Поскольку у нас в кластере уже
@@ -134,7 +132,3 @@ CREATE TABLE vault_ha_locks (
     bound_service_account_namespaces=default \
     policies=internal-app \
     ttl=20m
-
-## Видео
-
-[<img src="https://img.youtube.com/vi/3zqjAqWH6Sw/maxresdefault.jpg" width="50%">](https://youtu.be/3zqjAqWH6Sw)
