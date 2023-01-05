@@ -1,7 +1,6 @@
 # Longhorn
 [Документация](https://longhorn.io/).
-Было:![](images/old.jpg)
-Будет: ![](images/new.jpg)
+![](images/new.jpg)
 
 ## Подготовка
 Все дальнейшие действия рассчитаны на установку в мой кластер:
