@@ -3,6 +3,8 @@
 1. Как собирать логи приложения, если у вас нет доступа к локальной файловой системе.
 2. Как пользоваться хорошо сделанными helm chart-ами.
 
+![](images/logHazelcast.jpg)
+
 За основу берём официальный [helm chart](https://github.com/hazelcast/charts/tree/master/stable/hazelcast).
 
 ## Теория сбора логов

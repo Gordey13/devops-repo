@@ -1,4 +1,7 @@
 # kubernetes-fluentbit
+
+![](images/logFluentbit.jpg)
+
 Файлы деплоя для fluentbit в kubernetes
 * 01-flb-acc.yaml - ServiceAccount, ClusterRole, ClusterRoleBinding, Secret (access to elasticsearch)
 * 02-flb-cm.yaml - ConfigMap. Конфигурационные файлы fluentbit.
