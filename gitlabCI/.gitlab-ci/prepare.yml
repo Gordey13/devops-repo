@@ -1,0 +1,7 @@
+---
+show_env_vars:
+  allow_failure: true
+  script:
+    - env
+  stage: prepare
+...
