@@ -1,7 +1,7 @@
 # devops-repo
 *Observability (Monitoring, Logging)
 Logging:
-    - Кластер логирования FluentBit + ElasticSearch + Kibana
+  - Кластер логирования FluentBit + ElasticSearch + Kibana
     - Кластер логирования FluentBit + Fluentd(forward) + NFS -> file.log
     - Кластер логирования FluentBit + Kafka + Vector + ElasticSearch + Kibana
     - Кластер логирования FluentBit + HazelCast
