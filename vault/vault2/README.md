@@ -3,14 +3,7 @@
 Почему не стоит посылать сигнал HUP? Но если хочется, то как это сделать? 
 В качестве примера используем hashicorp vault.
 
-## Благодарности.
-
-Хочу поблагодарить Сергея Андрюнина за комментарии под предыдущим видео и 
-[предоставленные материалы](https://gitlab.com/k11s-os/k8s-lessons/-/tree/main/Vault),
-на основании которых подготовлено данное видео.
-
 ## Немного теории.
-
 Обычно приложения не следят за состоянием своих конфигурационных файлов. Если в конфиги
 вносятся какие-либо изменения, приложение это не "видит" и требуется что-то сделать, что бы
 приложение перечитало свой конфигурационный файл. В большинстве случаев достаточно послать процессу 
@@ -35,7 +28,7 @@
 
 ### Vault
 
-Вернёмся к задаче подстановки данных из Hashicorp vault в конфиги, которую мы решали в [предыдущем видео](../README.md).
+Вернёмся к задаче подстановки данных из Hashicorp vault в конфиги, которую мы решали в (../README.md).
 Там значения из vault подставлялись в файлы в volume при помощи secrets-store-csi-driver. Volume со значениями из
 vault подключался один раз в initContainer. На основании данных этого volume генерировались конфигурационные файлы,
 которые по соображениям безопасности размещались в RAM диске. Init контейнер завершал свою работу, volume с данными из
@@ -75,7 +68,6 @@ Vault про безопасность, но что бы он работал на
 [shareProcessNamespace](https://kubernetes.io/docs/tasks/configure-pod-container/share-process-namespace/)
 
 В темплейте пода добавьте:
-
 ```yaml
     spec:
       shareProcessNamespace: true
@@ -116,11 +108,8 @@ Vault про безопасность, но что бы он работал на
 ```
 
 ## Практика
-
 ### Установка vault
-
 Будем ставить vault по упрощённой dev схеме без secrets-store-csi-driver.
-
 **Внимание!** Данная установка vault после рестарта контейнера сбрасывает все данные! Если хотите использовать HA,
 смотрите [предыдущее видео](../README.md). 
 
@@ -131,14 +120,11 @@ Vault про безопасность, но что бы он работал на
     helm install --namespace vault --create-namespace vault hashicorp/vault -f values.yaml
 
 Смотрим статус:
-
      kubectl -n vault exec vault-0 -- vault status
 
 ### Добавляем сикреты
-
     kubectl -n vault exec -it vault-0 -- /bin/sh
     vault login root
-
     vault auth enable kubernetes
     vault auth list
     vault write auth/kubernetes/config \
@@ -148,12 +134,10 @@ Vault про безопасность, но что бы он работал на
         issuer="https://kubernetes.default.svc.cluster.local"
 
 Добавляем секрет
-
     vault kv put secret/application application="HelloPassword" user="Vasiliy" password="MegaPassword"
     vault kv get secret/application
 
 Создаём политику
-
     vault policy write internal-app - <<EOF
     path "secret/data/application" {
       capabilities = ["read"]
@@ -162,7 +146,6 @@ Vault про безопасность, но что бы он работал на
     vault policy read internal-app
 
 Создаём роль
-
     vault write auth/kubernetes/role/application \
     bound_service_account_names=application-sa \
     bound_service_account_namespaces=default \
@@ -170,11 +153,8 @@ Vault про безопасность, но что бы он работал на
     ttl=20m
 
 ## Приложение
-
 В качестве приложения будем использовать nginx. Файл, в котором будут подставляться значения из vault - index.html.
-
 Файл деплоймента - [02-nginx.yaml](manifests-app/02-nginx.yaml). Согласно схемы:
-
 ![](images/image2.jpg)
 
 Кроме основного приложения (nginx) добавлен init контейнер с vault агентом. Задача которого - первоначальное формирвание
