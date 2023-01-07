@@ -1,0 +1,50 @@
+stages:
+  - test
+  - build
+  - inn_runner
+  - ext_runner
+
+variables:
+  IMAGE_NAME: ${CI_REGISTRY}/devops_influence/quests/django-docker-cicd
+django tests:
+  image: python:latest
+  stage: test
+  script:
+    - pip install -r requirements.txt
+    - python manage.py test --noinput
+
+build image:
+  stage: build
+  image: docker:stable
+  services:
+    - docker:dind
+  script:
+    - sed -i "s/%%%BUILDTAG%%%/${CI_COMMIT_SHORT_SHA}/g" ./blog/templates/blog/base.html
+    - docker login -u gitlab-ci-token -p ${CI_JOB_TOKEN} ${CI_REGISTRY}
+    - docker build -t ${IMAGE_NAME}:${CI_COMMIT_SHORT_SHA} .
+    - docker push ${IMAGE_NAME}:${CI_COMMIT_SHORT_SHA}
+    - docker tag ${IMAGE_NAME}:${CI_COMMIT_SHORT_SHA} ${IMAGE_NAME}:latest
+    - docker push ${IMAGE_NAME}:latest
+    - if [[ ! -z "${CI_COMMIT_TAG}" ]]; then docker tag ${IMAGE_NAME}:${CI_COMMIT_SHORT_SHA} ${IMAGE_NAME}:${CI_COMMIT_TAG}; fi
+    - if [[ ! -z "${CI_COMMIT_TAG}" ]]; then docker push ${IMAGE_NAME}:${CI_COMMIT_TAG}; fi
+
+deploy_inn:
+  stage: inn_runner
+  script:
+#   - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN ${CI_REGISTRY}
+#   - docker_pull ${CI_REGISTRY}/devops_influence/quests/django-docker-cicd:latest
+    - cp ./docker-compose.yml /var/www/devops
+    - cd /var/www/devops
+    - docker-compose pull
+    - docker-compose stop web || true
+    - docker-compose up -d --force-recreate
+#   - docker-compose stop web || true && docker-compose rm web || true
+  tags:
+    - stand-local-shell
+
+deploy_out:
+  stage: ext_runner
+  script:
+    - echo "qwe"
+  tags:
+    - jennie-shell

@@ -1,0 +1,9 @@
+version: '3.7'
+
+services:
+  web:
+    image: registry.gitlab.com/devops_influence/quests/django-docker-cicd:latest
+    volumes:
+      - ./db:/code/db/
+    ports:
+      - "127.0.0.1:8000:8000"
