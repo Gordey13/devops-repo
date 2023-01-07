@@ -1,0 +1,21 @@
+<qa:browsers xmlns:qa="urn:config.gridrouter.qatools.ru">
+<browser name="firefox" defaultVersion="88.0">
+    <version number="88.0">
+        <region name="1">
+            <host name="172.18.0.1" port="4444" count="12"/>
+        </region>
+    </version>
+</browser>
+<browser name="chrome" defaultVersion="103.0">
+    <version number="103.0">
+        <region name="1">
+            <host name="172.18.0.2" port="4445" count="12" vnc="vnc://172.18.0.2:5900"/>
+        </region>
+    </version>
+    <version number="104.0">
+        <region name="1">
+            <host name="172.18.0.3" port="4446" count="12" vnc="vnc://172.18.0.3:5900"/>
+        </region>
+    </version>
+</browser>
+</qa:browsers>
