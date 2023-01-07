@@ -14,12 +14,12 @@ Monitoring в кластере K8s:
   - Тонкая настройка Alertmanager, Karma
 
 Прочие:
-  - Hashicorp Vault в kubernetes
   - Metallb
   - Docker MultiStage Build
   - Настройка timezone в контейнере
   - Gatekeeper
   - Keycloak
+  - Кластер Selenoid + Docker + GGR (load balancer) + GGR UI + Selenoid UI + nginx
 
 CI/CD:
   - ArgoCD доставка и развертывание
