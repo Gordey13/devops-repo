@@ -1,0 +1,39 @@
+image: gradle:alpine
+#image: maven:3.8-openjdk-11
+
+default:
+  tags:
+    - shelllocal
+stages:
+  - tests
+  - allure
+
+API Test:
+  stage: tests
+  allow_failure: true
+  script:
+    - ./gradlew -x test apiTests
+  artifacts:
+    when: always
+    paths:
+      - build/allure-results
+
+UI Test:
+  stage: tests
+  allow_failure: true
+  script:
+  - ./gradlew -x test uiTests
+  artifacts:
+    when: always
+    paths:
+      - build/allure-results
+
+Allure report:
+  stage: allure
+  script:
+    - ./gradlew allure_Report
+    - echo "Allure report live here - https://${CI_PROJECT_NAMESPACE}.${CI_PAGES_DOMAIN}/-/${CI_PROJECT_NAME}/-/jobs/${CI_J0B_ID}/artifacts/build/reports/allure-report/allureReport/index.html"
+  artifacts:
+    when: always
+    paths:
+      - build/reports/allure-report/allureReport/*

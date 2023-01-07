@@ -1,0 +1,17 @@
+concurrent = 2
+check_interval = 0
+
+[session_server]
+    session_timeout = 1800
+
+[[runners]]
+    name = "threadlocal"
+    url = "https://gitlab.com/"
+    token = "ofs3K1_1D64hsPFP5-iw"
+    executor = "shell"
+    shell = "powershell"
+        [runners.custom_build_dir]
+        [runners.cache]
+            [runners.cache.s3]
+            [runners.cache.gcs]
+            [runners.cache.azure]
