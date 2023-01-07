@@ -25,7 +25,7 @@
 - Запускаем Docker контейнер с балансировщиком:
 `docker run -d --name ggr -v /etc/grid-router/:/etc/grid-router:ro --net host aerokube/ggr:latest-release -guests-allowed -guests-quota "test" -verbose -quotaDir /etc/grid-router/quota`
 
-GGR UI - небольшой плагин для балансировщика, который собирает общие квоты для selenoid ui с балансировщика нагрузки ggr
+- GGR UI - небольшой плагин для балансировщика, который собирает общие квоты для selenoid ui с балансировщика нагрузки ggr
 `docker run -d --name ggr-ui -p 8888:8888 -v /etc/grid-router/:/etc/grid-router/quota:ro aerokube/ggr-ui:latest-release`
 - Проверка, что ggr-ui работает:
 `curl -s http://localhost:8888/status`
