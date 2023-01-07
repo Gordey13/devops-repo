@@ -29,8 +29,6 @@
 `docker run -d --name ggr-ui -p 8888:8888 -v /etc/grid-router/:/etc/grid-router/quota:ro aerokube/ggr-ui:latest-release`
 - Проверка, что ggr-ui работает:
 `curl -s http://localhost:8888/status`
-
 `docker run -d --name selenoid-ui --net host aerokube/selenoid-ui --selenoid-uri http://127.0.0.1:8888`
-
 `docker run -d --name nginx -v $HOME/nginx/:/etc/nginx/conf.d/-v /sys/fs/cgroup:/sys/fs/cgroup:ro -v /etc/localtime:/etc/localtime:ro --restart always --privileged --net host nginx:latest`
 
