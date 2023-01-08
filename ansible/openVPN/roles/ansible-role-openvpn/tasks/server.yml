@@ -1,0 +1,110 @@
+---
+# tasks file for ansible-role-base
+- name: Install packages
+  become: yes
+  apt:
+    pkg:
+      - openvpn
+      - easy-rsa
+      - iptables-persistent
+    state: latest
+    update_cache: true
+  notify: enable openvpn
+- name: "Ensure {{ openvpn_dir }}/easy-rsa exist"
+  become: yes
+  file:
+    path: "{{ openvpn_dir }}/easy-rsa"
+    state: directory
+    mode: 0755
+- name: Create vars file
+  become: yes
+  copy:
+    dest: "{{ easy_rsa_dir }}/vars"
+    content: |
+      set_var EASYRSA_ALGO "ec"
+      set_var EASYRSA_DIGEST "sha512"
+- name: easy-rsa init-pki
+  become: yes
+  command: 
+    cmd: "{{ easy_rsa_dir }}/easyrsa init-pki"
+    chdir: "{{ openvpn_dir }}/easy-rsa"
+    creates: "{{ openvpn_dir }}/easy-rsa/pki"
+- name: easy-rsa build-ca
+  become: yes
+  command: 
+    cmd: "{{ easy_rsa_dir }}/easyrsa build-ca nopass"
+    chdir: "{{ openvpn_dir }}/easy-rsa"
+    creates: "{{ openvpn_dir }}/easy-rsa/pki/ca.crt"
+  environment:
+    EASYRSA_BATCH: "yes"
+- name: easy-rsa gen-dh
+  become: yes
+  command: 
+    cmd: "{{ easy_rsa_dir }}/easyrsa gen-dh"
+    chdir: "{{ openvpn_dir }}/easy-rsa"
+    creates: "{{ openvpn_dir }}/easy-rsa/pki/dh.pem"
+- name: easy-rsa server nopass
+  become: yes
+  command: 
+    cmd: "{{ easy_rsa_dir }}/easyrsa build-server-full server nopass"
+    chdir: "{{ openvpn_dir }}/easy-rsa"
+    creates: "{{ openvpn_dir }}/easy-rsa/pki/issued/server.crt"
+- name: easy-rsa gen-crl
+  become: yes
+  command: 
+    cmd: "{{ easy_rsa_dir }}/easyrsa gen-crl"
+    chdir: "{{ openvpn_dir }}/easy-rsa"
+    creates: "{{ openvpn_dir }}/easy-rsa/pki/crl.pem"
+- name: openvpn genkey
+  become: yes
+  command: 
+    cmd: "openvpn --genkey --secret {{ openvpn_dir }}/easy-rsa/pki/ta.key"
+    creates: "{{ openvpn_dir }}/easy-rsa/pki/ta.key"
+- name: "Copy files to {{ openvpn_dir }}/server"
+  become: yes
+  copy:
+    src: "{{ openvpn_dir }}/easy-rsa/pki/{{ item }}"
+    dest: "{{ openvpn_dir }}/server/{{ item | basename }}"
+    mode: "0644"
+    remote_src: true
+  loop:
+    - ca.crt
+    - dh.pem
+    - ta.key
+    - private/ca.key
+    - private/server.key
+    - issued/server.crt
+- name: "Copy files to {{ openvpn_dir }}"
+  become: yes
+  copy:
+    src: "{{ openvpn_dir }}/easy-rsa/pki/{{ item }}"
+    dest: "{{ openvpn_dir }}/{{ item | basename }}"
+    mode: "0644"
+    remote_src: true
+  loop:
+    - ca.crt
+    - ta.key
+- name: Place server.conf
+  become: yes
+  template:
+    src: server.conf.j2
+    dest: "{{ openvpn_dir }}/server.conf"
+    owner: root
+    group: root
+    mode: "0644"
+  notify:
+    - restart openvpn
+- name: Copy output
+  become: yes
+  fetch:
+    src: "{{ openvpn_dir }}/easy-rsa/pki/{{ item }}"
+    dest: "{{ playbook_dir }}/server/{{ item | basename }}"
+    flat: yes
+  loop:
+    - ca.crt
+    - dh.pem
+    - ta.key
+    - private/ca.key
+    - private/server.key
+    - issued/server.crt
+- include: client.yml

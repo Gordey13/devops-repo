@@ -1,0 +1,64 @@
+Абстракции приложения:
+    - Pod
+    - ReplicaSet
+    - Deployment
+
+Хранение конфигураций:
+    - Переменные окружения
+    - Secret
+    - ConfigMap
+
+Хранение данных:
+    - Возможности Kubernetes
+    - Persistent volume
+    - Persistent volume claim
+
+Сетевые абстракции:
+    - HealthCheck
+    - Service
+    - Ingress
+
+Устройство кластера:
+    - Компоненты кластера
+    - Как запускается приложение
+
+Oneshot задачи:
+    - Job
+    - CronJob
+
+Альтернативы Deployment:
+    - DaemonSet
+    - StatefulSet
+
+Авторизация в кластере:
+    - Kubeconfig
+    - RBAC
+    - Ограничения в кластере. PSP, Limit Range, Resource Quota
+
+Особенности ЯП в Kubernetes:
+    - Java
+    - Python
+    - Go
+
+Локальная разработка в Kubernetes:
+    - Minikube
+    - Автообновление кода в поде
+
+Дебаг приложений в кластере:
+    - Возможности Kubernetes
+    - Подключение профилировщиков
+    - Pprof
+    - Best Practice по работе с контейнерами в продакшене
+
+Темплейтирование приложений:
+    - Обзор существующих инструментов
+    - Helm
+
+CI/CD:
+    - Тестирование
+    - Сборка образа
+    - Деплой с Helm
+    - Хуки
+    - RBAC
+    - Библиотеки для Kubernetes
+    - Работа с API

@@ -1,0 +1,7 @@
+---
+- name: Converge
+  hosts: all
+  tasks:
+    - name: "Include vpn.openvpn"
+      include_role:
+        name: "vpn.openvpn"
