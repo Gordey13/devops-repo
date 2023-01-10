@@ -1,0 +1,13 @@
+vagrant.configure("2") do |config|
+    
+    config.vm.define "nginx-1" do |d|
+        d.vm.hostname = "nginx-1"
+    end
+
+    config.vm.provider "docker" do |d|
+        d.name = "nginx-1"
+        d.image = "nginx:latest"
+        d.ports = ["9001:80"]
+    end
+
+end

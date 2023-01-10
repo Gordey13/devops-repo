@@ -1,0 +1,22 @@
+Vagrant.configure("2") do |config|
+    config.vm.box = "ubuntu/xenial64"
+    
+    config.vm.network "public_network", bridge: "wlp2st", :mac => "08002777F468"
+    
+    config.vm.define "gitlab"
+    
+    config.vm.provider "virtualbox" do |vb|
+        vb.name = "gitlab"
+        vb.cpus = 4
+        vb.memory = "4096"
+    end
+    
+    config.vm.hostname = "gitlab"
+    
+    config.vm.provision "shell", inline: <<-SHELL
+        apt-get update
+        apt-get install -y curl openssh-server ca-certificates tzdata htop
+        curl -sS https://packages.gitlab.com/install/repositories/gitlab/gitlab-ce/script.deb.sh | sudo bash
+        sudo EXTERNAL_URL="http://gitlab.int" apt-get install -y gitlab-ce
+    SHELL
+end

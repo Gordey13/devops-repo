@@ -1,0 +1,21 @@
+Vagrant.configure("2") do |config|
+    config.vm.box = "ubuntu/xenial64"
+    
+    config.vm.network "public_network", bridge: "wlp2s0", :mac => "08002777F468"
+    
+    config.vm.define "myserver1"
+    
+    config.vm.provider "myserver1" do |vb|
+        vb.name = "gitlab"
+        vb.cpus = 4
+        vb.memory = "4096"
+    end
+
+    config.vm.hostname = "myserver1"
+
+    config.vm.provision "shell", inline: <<-SHELL
+        apt-get install nginx -y
+        rm -rf /etc/nginx/test.file
+    SHELL
+
+end

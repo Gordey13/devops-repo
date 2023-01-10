@@ -1,0 +1,20 @@
+Vagrant.configure("2") do |config|
+    
+    config.vm.define "nginx-2" do |d|
+        d.vm.hostname = "nginx-2"
+    end
+
+    config.vm.provider "docker" do |d|
+        d.name = "nginx-2"
+        d.image = "nginx:latest"
+        d.ports = [
+            "9002:80",
+            "9003:80"
+        ]
+    d.create_args = [
+            "--restart=always",
+            "--cpus=1"
+    ]
+    end
+
+end
