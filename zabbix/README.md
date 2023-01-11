@@ -106,3 +106,6 @@ sudo docker-compose -f docker-compose-proxy-amd64.yaml up -d
 ```bash
 sudo docker-compose -f docker-compose-proxy-amd64.yaml down
 ```
+
+sudo nano /etc/zabbix/zabbix_agentd.conf
+sudo systemctl restart zabbix-agent.service

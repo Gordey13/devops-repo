@@ -1,0 +1,32 @@
+Vagrant.configure("2") do |config|
+    config.vm.network "public_network", bridge: "enp7s0"
+    config.vm.define "agent" do |agent|
+        agent.vm.hostname = "agent"
+       agent.vm.box = "ubuntu"
+       agent.vm.provider "virtualbox" do |vb|
+           vb.name = "agent"
+           vb.cpus = 2
+           vb.memory = "1024"
+       end
+        
+    config.vm.provision "file", source: "~/vagrant-zabbix/agent/agent-zabbix.yaml", destination: "agent-zabbix.yaml"
+    agent.vm.provision "shell", inline: <<-SHELL
+        apt-get update
+        apt-get install \
+            apt-transport-https \
+            ca-certificates \
+            curl \
+            gnupg-agent \
+            software-properties-common -y
+        curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
+        apt-key fingerprint 0EBFCD88
+        apt-get install docker-ce docker-ce-cli containerd.io -y
+        curl -fsSL https://get.docker.com -o get-docker.sh
+        usermod -aG docker $(whoami)
+        systemctl enable docker --now
+        curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+        chmod +x /usr/local/bin/docker-compose
+        docker-compose -f agent-zabbix.yaml up -d
+    SHELL
+    end
+end

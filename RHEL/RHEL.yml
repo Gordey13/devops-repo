@@ -300,8 +300,24 @@
   :q -- Закройте текущий файл без сохранений
   :q! -- Закройте текущий файл, игнорируя любые несохраненные изменения.
 
-4. Scheduling задач в cron: 
-...
+4. Scheduling задач в cron:
+  * * * * * :: Каждую минуту
+  0 * * * * :: Каждый час, в 0 минуту
+  0 0 * * * :: Каждый день в 12 ночи
+  0 0 1 * * :: В первый день каждого месяца
+  0 0 15 * * :: 15 числа месяца
+  0 0 * 1 0 :: В первый день недели первого месяца года, 0 часов 0 минут
+  0 0 * * 0 :: Нулевой день недели каждого месяца
+  30 15 * * 2 :: 15.30 во вторник
+  30 15 * * sun :: 15.30 в воскресенье
+  0 7-19  * * * :: Каждый час, с семи утра до семи вечера
+  5,35 16  * * * :: Каждый день в 5 и 35 минут пятого (16:05 и 16:35), 
+  */10 * * * * :: Раз в 10 минут
+#!/bin/bash
+  @hourly :: каждый час
+  @yearly/monthly/weekly/daily :: Раз в...
+  @reboot :: 1 раз при перезагрузке
+
 5. Управление приоритетами процессов:
   Уровни варьируются от -20 до 19
   ps axo pid,comm,nice --sort=-nice :: 
@@ -314,9 +330,76 @@
 8. Подключение к определенным в сети пользователям и группам:
 ...
 9. Добавление дисков, разделов и файловых систем в систему Linux:
-...
+MBR диск partitions:
+  fdisk /dev/vdb :: Partition=1, FirstSector=2048, LastSector=2048, Size=1050623, Type
+  partprobe /dev/vdb :: Принудительное чтение таблицы разделов ядром
+  fdisk /dev/vdb :: Удаление nameDisk, partitions, D => 1 (Delete--Удалить part1), W - завершить удаление раздела
+  partprobe /dev/vdb :: Чтение MBR
+GPT диск partitions:
+  gdisk /dev/vdb -- n(new), Partition(1), StartPart(2048), LastPart(1050623), Size(512M), FS='Linux LVM', Save(W)
+  partprobe /dev/vdb :: Чтение таблиц разделов диска
+  gdisk /dev/vdb ::  Удаление Partition(1) -- Del(d) -- Сохранить изменения(W)
+  partprobe /dev/vdb :: Чтение таблиц разделов диска
+Создание файловой системы: xfs, ext4, ext2(По умолчанию)
+  mkfs -t xfs /dev/vdb1 -- Создать раздел диска с FS:xfs
+  mount /dev/vdb1 /mnt :: Монтирование файловой системы в директорию mnt
+  mount | grep vdb1 | cat /etc/fstab
+  blkid /dev/vdb1 ::Сканирование блочных устройст и вывод информации о них
+  Добавить запись в файл /etc/f stab :: UUID(345-23) /temp ext4...
+  mount | grep -w /archive :: Проверить монитрование в /archive
+  mount | grep ^/ :: Проверить монитрование
+Пространство подкачки:
+  mkswap /dev/vdb2 :: Инициализировать пространство подкачки из vdb2
+  swapon /dev/vdb1 :: Включить файловую подкачку
+  swapoff /dev/vdb1 :: Отключить файловую подкачку
+  free -- отобразить информацию о ОЗУ
+  /etc/fstab :: Для де/активации swap (swapoff | swapon)
+  swapon -s :: Отобразить текущие swap в системе
+  swapoff /dev/vdb2 :: Отключить пространство подкачки
 10. Управление хранилищем LVM:
-...
+  1. Разделить физическое хранилище (fdisk) :: Блочные устройства. RAID массив.
+  2. Создать физический объем PV :: Физические устройства хранения данных. Диск, раздел. ТОМ.
+  3. Создать группу томов VG :: Группа физических томов. Сост. из логических томов и физ. томов.
+  4. Создать логический том LVM :: Файловая система смонтированная для использования
+    Диск, partition, RAID array
+Создание структуры томов:
+  1. fdisk /dev/vda :: Разметить диск
+  2. pvcreate /dev/vda2 /dev/vdb1 :: Обозначить разделы 
+  3. vgcreate vg-alpha /dev/vda2 /dev/vdb1 :: Создать volume группу
+  4. lvcreate -n hercules -L 2G vg-alpha :: Создать логический volume
+  5. mkfs -t xfs /dev/vg-alpha/hercules
+  6. mkdir /mnt/hercules
+  7. /etc/fstab :: /dev/vg-alpha/hercules /mnt/hercules xfs defaults
+  8. mount -a
+Удаление и отображение:
+  umount /mnt/hercules + remove /etc/fstab
+  lvremove /dev/vg-alpha/hercules :: Удалить LV
+  vgremove vg-alpha :: Удалить VG
+  pvremove /dev/vda2 /dev/vdb1 :: Удалить PV
+  pvdisplay /dev/vda2 :: Отобразить статус PV физ. хранилища :: 
+    PV Name/Size :: VG Name/Size :: PE Size :: Free PE :: Total PE
+  vgdisplay vg-alpha :: Отобразить статус VG
+  lvdisplay /dev/vg-alpha/hercules :: Отобразить статус LV
+  mount /dev/mapper /shazam-storage
+  df -h :: Отобразить свободное пространство на диске
+Расширение томов:
+  fdisk /dev/vdb :: Создать физический ресурс
+  partprobe :: Регистрировать новую партицию в ядре
+  pvcreate /dev/vdb2 :: Создать PV
+  vgextend vg-alpha /dev/vdb2 :: Расширить VG группу
+  vgdisplay vg-alpha :: Отобразить инфомрацию
+  pvmove /dev/vdb2
+  vgreduce vg-alpha /dev/vdb2
+  vgdisplay vg-alpha
+  lvextend -1 128 :: Изменить 128-extents / 128MiB
+  lvextend -1 +128 :: Добавить 128-extents / 128MiB
+  lvextend -L +300M /dev/storage/mountpoint :: Расширить LV на 700Mib
+  lvextend -1 +50%FREE :: Добавить 50% текущего свободного места
+  xfs_growfs /mountpoint :: Расширить файловую систему (Обязательный шаг)
+  df -h /mountpoint :: Отобразить информацию файловой системе
+  resize2fs /dev/vg-alpha/mountpoint :: Изменить размер файловой системы
+  partprobe
+
 11. Доступ к сетевому хранилищу с помощью сетевой файловой системы (NFS):
 ...
 12. Доступ к сетевому хранилищу с помощью SMB:
@@ -324,4 +407,54 @@
 13. Управление процессом загрузки RHEL и устранение неполадок:
 ...
 14. Ограничение сетевого взаимодействия с firewalld:
-...
+  Firewall == Internet (WAN) --- Firewall --- LAN
+  Network --- Kernel space --- User space
+  Сетевые интерфейсы eth1
+  Сетевые интерфейсы eth0
+  Маршрутизатор router
+  natfilter
+  	PREROUTING
+  	POSTROUTING
+  	FORWARD
+  	INPUT :: Входящий канал служб
+  	OUTPUT :: Исходящий канал служб
+  iptable Process Flow
+  	Нас интересует только таблица INPUT filter
+  Отображение таблиц маршрутизации INPUT, OUTPUT, FORWARD
+  sudo iptables -L -nv :: Вывод таблицы filter 
+  sudo iptables -L -t filter -nv :: Вывести таблицу filter
+  sudo iptables -L -t nat -nv :: Вывести таблицу nat
+  	policy ACCEPT :: Политика фильтрации пакетов
+  	iptables :: Таблица для отображения по умолчанию filter
+  sudo ss -ntulp :: Отображение сетевых подключений UDP
+  sudo ss -ntlp :: Отображение сетевых подключений TCP
+  	1. Netid :: отображает типы сокетов
+  	2. State :: отображает состояние сокета
+  	3. Recv-Q :: отображает количество принятых пакетов
+  	4. Send-Q :: отображает количество отправленных пакетов
+  	5. Local address:port :: отображает ip:port локальной машины
+  	6. Peer address:port :: отображает ip:port удаленной машины
+iptables:
+  	-A INPUT :: Добавить правило в конец списка (APPEND)
+  	-p tcp :: Протокол
+  	--dport=22 :: Порт
+  	-j ACCEPT :: Разрешение
+  iptables -L -nv` :: Отобразить таблицу filter
+  iptables -A INPUT -i lo -j ACCEPT` :: Разрешить пакеты на Loopback интерфейс
+  iptables -A INPUT -p icmp -j ACCEPT` :: Разрешить пакеты протокола icmp
+  iptables -A INPUT -p tcp --dport=80 -j ACCEPT` :: Разрешить tcp пакеты на 80 порт
+  iptables -A INPUT -p tcp --dport=443 -j ACCEPT` :: Разрешить tcp пакеты на 443 порт
+	  - iptables правила читаются сверху вниз
+  iptables -A INPUT -m state --state ESTABLISHED, RELATED -j ACCEPT`
+  iptables -P INPUT DROP` :: Меняет политику фильтрации пакетов на policy DROP. Уничтожение пакета
+  iptables -P INPUT REJECT` :: Меняет политику фильтрации пакетов на policy REJECT. Оповещение о блокировке пакета
+  iptables -P INPUT ACCEPT` :: Меняет политику фильтрации пакетов на policy ACCEPT. Разрешить любые пакеты
+  iptables-save > ./iptables.rules` :: Сохранить настройки правил iptables в файл
+  iptables-restore < ./iptables.rules` :: Восстановить правила для iptables из файла
+  iptables -I INPUT -s 10.10.10.10 -j DROP` :: Удалять пакеты от ip 16.12312.10 на всех портах и протоколах
+Автоматизация загрузки правил для firewall: 
+  sudo  yum install iptables-persistent netfilter-persistent` :: Установить утилиту для загрузки правил firewall
+  ри установки можно сохранить правила для ipv4 ipv6 в директорию `/etc/iptables`
+  netfilter-persistent save` :: Сохранить правила для таблиц ipv4 ipv6
+  netfilter-persistent start` :: Установить правила для таблиц IPv4 IPv6
+  iptables -A INPUT -i enp0s3 -p TCP --dport 22 -j ACCEPT` :: Разрешить пакеты на  интерфейс enp0s3 и порт 22

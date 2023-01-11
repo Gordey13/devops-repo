@@ -12,7 +12,7 @@ Monitoring в кластере K8s:
   - Мониторинг VictoriaMetrics + Karma + Vmalert + Alertmanager + Grafana + Wmagent + Node-exporter, KSM
   - Тонкая настройка Dashbords для Grafana
   - Тонкая настройка Alertmanager, Karma
-  - Zabbix через Docker-compose : server -- nat -- proxy -- agent
+  - Zabbix через Docker-compose : server -- agent
 
 Прочие:
   - Metallb
